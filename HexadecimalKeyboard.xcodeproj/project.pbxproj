@@ -21,7 +21,35 @@
 		93C5E08924B97F0600A9D8D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 93C5E08724B97F0600A9D8D9 /* LaunchScreen.storyboard */; };
 		93C5E09124BA69FD00A9D8D9 /* HexadecimalKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E09024BA69FD00A9D8D9 /* HexadecimalKeyboard.swift */; };
 		93C5E09A24BAD67700A9D8D9 /* Ext-UIButton-CommonFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E09924BAD67700A9D8D9 /* Ext-UIButton-CommonFormat.swift */; };
+		AA15000100000000000015AA /* JerseyPoll.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AA01000100000000000001AA /* JerseyPoll.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA11000100000000000011AA /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA08000100000000000008AA /* MessagesViewController.swift */; };
+		AA12000100000000000012AA /* Poll.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA09000100000000000009AA /* Poll.swift */; };
+		AA13000100000000000013AA /* PollViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000100000000000010AA /* PollViewController.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA19000100000000000019AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 93C5E07124B97F0500A9D8D9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA02000100000000000002AA;
+			remoteInfo = JerseyPoll;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA14000100000000000014AA /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA15000100000000000015AA /* JerseyPoll.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		93BE547324BBDE1A00A4F5C9 /* HexKeyboard.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = HexKeyboard.gif; sourceTree = "<group>"; };
@@ -40,10 +68,22 @@
 		93C5E08A24B97F0600A9D8D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		93C5E09024BA69FD00A9D8D9 /* HexadecimalKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalKeyboard.swift; sourceTree = "<group>"; };
 		93C5E09924BAD67700A9D8D9 /* Ext-UIButton-CommonFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext-UIButton-CommonFormat.swift"; sourceTree = "<group>"; };
+		AA01000100000000000001AA /* JerseyPoll.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JerseyPoll.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA07000100000000000007AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA08000100000000000008AA /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
+		AA09000100000000000009AA /* Poll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Poll.swift; sourceTree = "<group>"; };
+		AA10000100000000000010AA /* PollViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		93C5E07624B97F0500A9D8D9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA04000100000000000004AA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -71,6 +111,7 @@
 				93BE547524BBDE2E00A4F5C9 /* LICENSE */,
 				93BE547224BBDDEE00A4F5C9 /* GitHub-Images */,
 				93C5E07B24B97F0500A9D8D9 /* HexadecimalKeyboard */,
+				AA06000100000000000006AA /* JerseyPoll */,
 				93C5E07A24B97F0500A9D8D9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -79,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				93C5E07924B97F0500A9D8D9 /* HexadecimalKeyboard.app */,
+				AA01000100000000000001AA /* JerseyPoll.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,6 +181,17 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		AA06000100000000000006AA /* JerseyPoll */ = {
+			isa = PBXGroup;
+			children = (
+				AA07000100000000000007AA /* Info.plist */,
+				AA08000100000000000008AA /* MessagesViewController.swift */,
+				AA09000100000000000009AA /* Poll.swift */,
+				AA10000100000000000010AA /* PollViewController.swift */,
+			);
+			path = JerseyPoll;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -149,15 +202,34 @@
 				93C5E07524B97F0500A9D8D9 /* Sources */,
 				93C5E07624B97F0500A9D8D9 /* Frameworks */,
 				93C5E07724B97F0500A9D8D9 /* Resources */,
+				AA14000100000000000014AA /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA20000100000000000020AA /* PBXTargetDependency */,
 			);
 			name = HexadecimalKeyboard;
 			productName = KeyboardCustomAppOnly;
 			productReference = 93C5E07924B97F0500A9D8D9 /* HexadecimalKeyboard.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AA02000100000000000002AA /* JerseyPoll */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA18000100000000000018AA /* Build configuration list for PBXNativeTarget "JerseyPoll" */;
+			buildPhases = (
+				AA03000100000000000003AA /* Sources */,
+				AA04000100000000000004AA /* Frameworks */,
+				AA05000100000000000005AA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JerseyPoll;
+			productName = JerseyPoll;
+			productReference = AA01000100000000000001AA /* JerseyPoll.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -169,6 +241,9 @@
 				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					93C5E07824B97F0500A9D8D9 = {
+						CreatedOnToolsVersion = 12.0;
+					};
+					AA02000100000000000002AA = {
 						CreatedOnToolsVersion = 12.0;
 					};
 				};
@@ -187,6 +262,7 @@
 			projectRoot = "";
 			targets = (
 				93C5E07824B97F0500A9D8D9 /* HexadecimalKeyboard */,
+				AA02000100000000000002AA /* JerseyPoll */,
 			);
 		};
 /* End PBXProject section */
@@ -208,6 +284,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA05000100000000000005AA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -223,7 +306,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA03000100000000000003AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA11000100000000000011AA /* MessagesViewController.swift in Sources */,
+				AA12000100000000000012AA /* Poll.swift in Sources */,
+				AA13000100000000000013AA /* PollViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA20000100000000000020AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA02000100000000000002AA /* JerseyPoll */;
+			targetProxy = AA19000100000000000019AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		93C5E08224B97F0500A9D8D9 /* Main.storyboard */ = {
@@ -399,6 +500,42 @@
 			};
 			name = Release;
 		};
+		AA16000100000000000016AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = T97DA5EFXT;
+				INFOPLIST_FILE = JerseyPoll/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.mv.HexadecimalKeyboard.JerseyPoll";
+				PRODUCT_NAME = JerseyPoll;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA17000100000000000017AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = T97DA5EFXT;
+				INFOPLIST_FILE = JerseyPoll/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.mv.HexadecimalKeyboard.JerseyPoll";
+				PRODUCT_NAME = JerseyPoll;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -416,6 +553,15 @@
 			buildConfigurations = (
 				93C5E08E24B97F0600A9D8D9 /* Debug */,
 				93C5E08F24B97F0600A9D8D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA18000100000000000018AA /* Build configuration list for PBXNativeTarget "JerseyPoll" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA16000100000000000016AA /* Debug */,
+				AA17000100000000000017AA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
