@@ -1,0 +1,25 @@
+{
+  "name": "Soccer Position Finder",
+  "short_name": "SoccerPos",
+  "description": "Find your soccer position and get your FC26 player card based on your athletic profile.",
+  "start_url": "./position-finder.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
