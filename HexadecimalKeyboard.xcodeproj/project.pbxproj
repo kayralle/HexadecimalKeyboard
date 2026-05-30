@@ -25,6 +25,12 @@
 		AA11000100000000000011AA /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA08000100000000000008AA /* MessagesViewController.swift */; };
 		AA12000100000000000012AA /* Poll.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA09000100000000000009AA /* Poll.swift */; };
 		AA13000100000000000013AA /* PollViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000100000000000010AA /* PollViewController.swift */; };
+		BB08000100000000000008BB /* Sport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02000100000000000002BB /* Sport.swift */; };
+		BB09000100000000000009BB /* SoccerArchetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03000100000000000003BB /* SoccerArchetype.swift */; };
+		BB10000100000000000010BB /* ArchetypeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB04000100000000000004BB /* ArchetypeEngine.swift */; };
+		BB11000100000000000011BB /* SportSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB05000100000000000005BB /* SportSelectorViewController.swift */; };
+		BB12000100000000000012BB /* SportDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB06000100000000000006BB /* SportDetailViewController.swift */; };
+		BB13000100000000000013BB /* ArchetypeResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB07000100000000000007BB /* ArchetypeResultViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +79,12 @@
 		AA08000100000000000008AA /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
 		AA09000100000000000009AA /* Poll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Poll.swift; sourceTree = "<group>"; };
 		AA10000100000000000010AA /* PollViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollViewController.swift; sourceTree = "<group>"; };
+		BB02000100000000000002BB /* Sport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sport.swift; sourceTree = "<group>"; };
+		BB03000100000000000003BB /* SoccerArchetype.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoccerArchetype.swift; sourceTree = "<group>"; };
+		BB04000100000000000004BB /* ArchetypeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeEngine.swift; sourceTree = "<group>"; };
+		BB05000100000000000005BB /* SportSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportSelectorViewController.swift; sourceTree = "<group>"; };
+		BB06000100000000000006BB /* SportDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportDetailViewController.swift; sourceTree = "<group>"; };
+		BB07000100000000000007BB /* ArchetypeResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeResultViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +164,12 @@
 			children = (
 				93C5E08024B97F0500A9D8D9 /* ViewController.swift */,
 				93C5E09024BA69FD00A9D8D9 /* HexadecimalKeyboard.swift */,
+				BB02000100000000000002BB /* Sport.swift */,
+				BB03000100000000000003BB /* SoccerArchetype.swift */,
+				BB04000100000000000004BB /* ArchetypeEngine.swift */,
+				BB05000100000000000005BB /* SportSelectorViewController.swift */,
+				BB06000100000000000006BB /* SportDetailViewController.swift */,
+				BB07000100000000000007BB /* ArchetypeResultViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -303,6 +321,12 @@
 				93C5E07D24B97F0500A9D8D9 /* AppDelegate.swift in Sources */,
 				93C5E09124BA69FD00A9D8D9 /* HexadecimalKeyboard.swift in Sources */,
 				93C5E07F24B97F0500A9D8D9 /* SceneDelegate.swift in Sources */,
+				BB08000100000000000008BB /* Sport.swift in Sources */,
+				BB09000100000000000009BB /* SoccerArchetype.swift in Sources */,
+				BB10000100000000000010BB /* ArchetypeEngine.swift in Sources */,
+				BB11000100000000000011BB /* SportSelectorViewController.swift in Sources */,
+				BB12000100000000000012BB /* SportDetailViewController.swift in Sources */,
+				BB13000100000000000013BB /* ArchetypeResultViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
