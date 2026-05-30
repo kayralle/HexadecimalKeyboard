@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Find Your Soccer Position</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,.12);
+    --radius: 14px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 64px;
+  }
+
+  .app { width: 100%; max-width: 520px; }
+
+  .app-header { text-align: center; margin-bottom: 32px; }
+  .app-header h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: -.4px; }
+  .app-header p  { color: var(--muted); margin-top: 6px; font-size: .9rem; }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .section-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+  }
+
+  /* ── sport grid ── */
+  .sport-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .sport-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 10px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+    text-align: center;
+    user-select: none;
+  }
+  .sport-card:hover  { background: var(--surface2); border-color: #484f58; }
+  .sport-card:active { transform: scale(.97); }
+  .sport-card .emoji { font-size: 1.9rem; display: block; margin-bottom: 7px; }
+  .sport-card .label { font-size: .82rem; font-weight: 600; color: var(--text); }
+
+  /* ── position list ── */
+  .position-list { display: flex; flex-direction: column; gap: 9px; }
+
+  .pos-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: .97rem;
+    font-weight: 500;
+    padding: 15px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: background .15s, border-color .15s;
+  }
+  .pos-btn:hover { background: var(--surface2); border-color: #484f58; }
+
+  /* ── golf ── */
+  .golf-section { margin-bottom: 26px; }
+  .golf-section h3 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+
+  .handicap-display {
+    font-size: 3.2rem; font-weight: 800; color: var(--green);
+    text-align: center; font-variant-numeric: tabular-nums;
+    line-height: 1; margin-bottom: 10px;
+  }
+  .handicap-display span { font-size: .95rem; font-weight: 400; color: var(--muted); margin-left: 5px; }
+
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 5px;
+    border-radius: 3px; background: var(--border); outline: none; margin-bottom: 7px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--green); cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.2);
+  }
+  .range-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); }
+
+  .golfer-type-grid { display: flex; flex-direction: column; gap: 9px; }
+  .type-btn {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: var(--radius); padding: 13px 15px;
+    cursor: pointer; text-align: left; transition: background .15s, border-color .15s; color: var(--text);
+  }
+  .type-btn.selected { background: var(--green-dim); border-color: var(--green); }
+  .type-btn .type-name  { font-size: .93rem; font-weight: 700; }
+  .type-btn .type-blurb { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+
+  .submit-btn {
+    width: 100%; margin-top: 22px; background: var(--green);
+    color: #071a0f; font-size: 1rem; font-weight: 800;
+    border: none; border-radius: var(--radius); padding: 15px;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .submit-btn:hover { opacity: .88; }
+
+  /* ── back ── */
+  .back-btn {
+    background: none; border: none; color: var(--muted); font-size: .88rem;
+    cursor: pointer; padding: 0; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 5px; transition: color .15s;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  /* ══════════════════════════════════════════
+     FC26 PLAYER CARD
+  ══════════════════════════════════════════ */
+
+  .result-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fc-card {
+    position: relative;
+    width: 280px;
+    aspect-ratio: 280 / 392;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.07),
+      0 8px 40px rgba(0,0,0,.9),
+      0 0 60px var(--card-glow, rgba(200,160,20,.35));
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 14px;
+    user-select: none;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Gold card */
+  .fc-card.gold {
+    --card-glow: rgba(220,172,20,.45);
+    background:
+      radial-gradient(ellipse at 60% 20%, rgba(255,230,100,.18) 0%, transparent 60%),
+      linear-gradient(155deg, #5c3d08 0%, #b07810 12%, #d4a818 25%, #f5d048 42%,
+                              #f7e060 50%, #f0c835 58%, #c89218 72%, #9a6808 85%, #5a3606 100%);
+  }
+
+  /* Silver card */
+  .fc-card.silver {
+    --card-glow: rgba(160,180,200,.35);
+    background:
+      radial-gradient(ellipse at 60% 20%, rgba(220,235,255,.15) 0%, transparent 60%),
+      linear-gradient(155deg, #2a3040 0%, #606878 12%, #8090a0 25%, #b0bcc8 42%,
+                              #c8d4e0 50%, #b8c4d0 58%, #8898a8 72%, #586070 85%, #28303c 100%);
+  }
+
+  /* Icon / special dark card */
+  .fc-card.icon {
+    --card-glow: rgba(140,100,255,.4);
+    background:
+      radial-gradient(ellipse at 55% 25%, rgba(160,120,255,.2) 0%, transparent 55%),
+      linear-gradient(155deg, #0a0a14 0%, #1a1428 14%, #28204c 28%, #3c3068 42%,
+                              #4a3c80 50%, #3c3070 58%, #221840 72%, #140e28 86%, #080810 100%);
+  }
+
+  /* Card gloss overlay */
+  .fc-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      130deg,
+      rgba(255,255,255,.13) 0%,
+      rgba(255,255,255,.06) 35%,
+      transparent 50%,
+      rgba(255,255,255,.04) 80%
+    );
+    pointer-events: none;
+  }
+
+  /* Edition watermark lines */
+  .fc-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -55deg,
+      transparent 0px, transparent 18px,
+      rgba(255,255,255,.025) 18px, rgba(255,255,255,.025) 19px
+    );
+    pointer-events: none;
+  }
+
+  /* Top row: OVR + POS left, edition right */
+  .fc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .fc-ovr-block { display: flex; flex-direction: column; align-items: flex-start; }
+
+  .fc-ovr {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--card-text, #2a1800);
+    text-shadow: 0 1px 0 rgba(255,255,255,.2);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+  }
+  .fc-card.silver .fc-ovr { color: #101820; }
+  .fc-card.icon   .fc-ovr { color: #e8d8ff; }
+
+  .fc-pos {
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    color: var(--card-text, #2a1800);
+    margin-top: 1px;
+  }
+  .fc-card.silver .fc-pos { color: #101820; }
+  .fc-card.icon   .fc-pos { color: #c8b8f0; }
+
+  .fc-edition-block { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+  .fc-edition-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+  }
+
+  .fc-edition-label {
+    font-size: .52rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--card-text, #2a1800);
+    opacity: .7;
+  }
+  .fc-card.silver .fc-edition-label { color: #101820; }
+  .fc-card.icon   .fc-edition-label { color: #a898d0; }
+
+  /* Player area */
+  .fc-player-area {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 4px;
+  }
+
+  .fc-player-silhouette {
+    font-size: 5.5rem;
+    line-height: 1;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,.5));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+
+  /* Bottom divider */
+  .fc-divider {
+    height: 1px;
+    background: rgba(0,0,0,.25);
+    margin: 8px 0 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .fc-card.icon .fc-divider { background: rgba(255,255,255,.12); }
+
+  /* Name */
+  .fc-name {
+    text-align: center;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--card-text, #1a1000);
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fc-card.silver .fc-name { color: #101820; }
+  .fc-card.icon   .fc-name { color: #e8d8ff; }
+
+  /* Stats row */
+  .fc-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .fc-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .fc-stat-val {
+    font-size: .82rem;
+    font-weight: 900;
+    color: var(--card-text, #1a1000);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .fc-card.silver .fc-stat-val { color: #101820; }
+  .fc-card.icon   .fc-stat-val { color: #e8d8ff; }
+
+  .fc-stat-name {
+    font-size: .46rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--card-text, #1a1000);
+    opacity: .65;
+    line-height: 1;
+  }
+  .fc-card.silver .fc-stat-name { color: #101820; }
+  .fc-card.icon   .fc-stat-name { color: #c0b0e8; }
+
+  /* ── Info below card ── */
+  .result-info { width: 100%; }
+
+  .result-info-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .info-label {
+    font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 9px;
+  }
+  .info-desc { font-size: .9rem; line-height: 1.65; color: #c9d1d9; }
+
+  .traits-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .traits-list li { display: flex; align-items: center; gap: 9px; font-size: .9rem; }
+  .trait-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  .comparison-card {
+    border-radius: var(--radius); padding: 15px;
+    text-align: center; margin-bottom: 10px;
+    font-size: 1rem; font-weight: 700;
+  }
+
+  .try-again-btn {
+    display: block; width: 100%;
+    background: var(--surface); border: 1.5px solid var(--border);
+    color: var(--muted); font-size: .92rem; font-weight: 600;
+    border-radius: var(--radius); padding: 13px;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .try-again-btn:hover { background: var(--surface2); color: var(--text); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-header">
+    <h1>⚽ Find Your Soccer Position</h1>
+    <p>Answer two questions. Get your player card.</p>
+  </div>
+
+  <div class="step active" id="step-sport">
+    <p class="section-label">Step 1 of 3 — Your Best Sport</p>
+    <div class="sport-grid" id="sport-grid"></div>
+  </div>
+
+  <div class="step" id="step-detail">
+    <button class="back-btn" onclick="goBack('step-sport')">← Back</button>
+    <p class="section-label" id="detail-label">Step 2 of 3</p>
+    <div id="detail-content"></div>
+  </div>
+
+  <div class="step" id="step-result">
+    <button class="back-btn" onclick="goBack('step-detail')">← Back</button>
+    <div id="result-content"></div>
+  </div>
+</div>
+
+<script>
+// ── Sports data ───────────────────────────────────────────────────────────────
+
+const SPORTS = [
+  { id:'basketball',  label:'Basketball',       emoji:'🏀', positions:['Point Guard','Shooting Guard','Small Forward','Power Forward','Center'] },
+  { id:'football',    label:'American Football', emoji:'🏈', positions:['Quarterback','Wide Receiver','Running Back','Tight End','Linebacker','Cornerback','Safety','Offensive Lineman','Defensive Lineman'] },
+  { id:'baseball',    label:'Baseball',          emoji:'⚾', positions:['Pitcher','Catcher','First Base','Second Base','Shortstop','Third Base','Outfielder'] },
+  { id:'hockey',      label:'Ice Hockey',        emoji:'🏒', positions:['Goalie','Defenseman','Center','Left Wing','Right Wing'] },
+  { id:'golf',        label:'Golf',              emoji:'⛳', positions:[] },
+  { id:'tennis',      label:'Tennis',            emoji:'🎾', positions:['Serve & Volley','Aggressive Baseliner','Defensive Baseliner','All-Court Player'] },
+  { id:'lacrosse',    label:'Lacrosse',          emoji:'🥍', positions:['Attack','Midfielder','Defense','Goalie'] },
+  { id:'rugby',       label:'Rugby',             emoji:'🏉', positions:['Prop','Hooker','Lock','Flanker','Number 8','Scrum-half','Fly-half','Wing','Centre','Fullback'] },
+  { id:'swimming',    label:'Swimming',          emoji:'🏊', positions:['Sprinter (50–100m)','Middle Distance (200–400m)','Distance (800m+)','Individual Medley'] },
+  { id:'track',       label:'Track & Field',     emoji:'🏃', positions:['Sprinter','Distance Runner','Jumper','Thrower / Shot Put'] },
+  { id:'volleyball',  label:'Volleyball',        emoji:'🏐', positions:['Setter','Outside Hitter','Middle Blocker','Libero','Opposite Hitter'] },
+];
+
+const GOLFER_TYPES = [
+  { id:'power',     label:'💪  Power Hitter',          blurb:'Muscle it long — aggressive, go-for-broke style' },
+  { id:'precision', label:'🎯  Precision Shotmaker',   blurb:'Surgical accuracy, hits every fairway and green' },
+  { id:'shortgame', label:'🪄  Short Game Specialist', blurb:'Scrambles and putts to low scores' },
+  { id:'allaround', label:'⚖️  All-Around',            blurb:'No glaring weaknesses — solid in every area' },
+];
+
+// ── Base stats per position code ──────────────────────────────────────────────
+// [PAC, SHO, PAS, DRI, DEF, PHY] or [DIV, HAN, KIC, REF, SPE, POS]
+
+const BASE_STATS = {
+  'ST':    { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[84,89,72,79,38,86], ovr:86 },
+  'RW/LW': { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[91,79,77,89,37,72], ovr:85 },
+  'CAM':   { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[79,79,89,87,44,71], ovr:86 },
+  'CM':    { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[75,73,87,81,71,79], ovr:84 },
+  'CDM':   { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[73,59,79,71,87,85], ovr:83 },
+  'RB/LB': { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[83,59,77,73,83,79], ovr:82 },
+  'CB':    { names:['PAC','SHO','PAS','DRI','DEF','PHY'], vals:[69,51,69,59,91,89], ovr:83 },
+  'GK':    { names:['DIV','HAN','KIC','REF','SPE','POS'], vals:[86,81,79,88,61,87], ovr:84 },
+};
+
+function getCardStats(code, delta) {
+  const b = BASE_STATS[code] || BASE_STATS['CM'];
+  return {
+    names: b.names,
+    vals:  b.vals.map(v => Math.min(99, Math.max(42, v + delta))),
+    ovr:   Math.min(99, Math.max(60, b.ovr + delta)),
+  };
+}
+
+// card tier: 'gold' | 'silver' | 'icon'
+function cardTier(ovr) { return ovr >= 90 ? 'icon' : ovr >= 83 ? 'gold' : 'silver'; }
+
+// emoji shown on card face
+const POS_EMOJI = {
+  'GK':'🧤','CB':'🛡️','RB/LB':'🔄','CDM':'💪',
+  'CM':'⚙️','CAM':'🎯','RW/LW':'⚡','ST':'🎯',
+};
+
+// ── Archetype builder ─────────────────────────────────────────────────────────
+
+function arch(position, code, name, desc, traits, player, color, delta=0) {
+  return { position, code, name, desc, traits,
+           player: 'Think: '+player, color, delta };
+}
+
+// ── ENGINE ─────────────────────────────────────────────────────────────────────
+
+const ENGINE = {
+  basketball: {
+    'Point Guard':    arch('Central Midfielder','CM','The Orchestrator','Point guards run the offense, make others better, and control tempo — exactly what a central midfielder does. Your vision and decision-making define the team\'s rhythm.',['Vision','Distribution','Leadership','Field IQ','Composure under pressure'],'Kevin De Bruyne','#3b82f6',4),
+    'Shooting Guard': arch('Winger','RW/LW','The Inverted Creator','Shooting guards combine scoring instinct with athletic creation. You\'re a modern inverted winger who cuts inside, beats defenders, and shoots with purpose.',['Scoring instinct','Athleticism','Cutting runs','Clutch','Dribbling'],'Arjen Robben','#ef4444',3),
+    'Small Forward':  arch('Attacking Midfielder','CAM','The Versatile Threat','Small forwards are the most versatile players on the court — athletic, mobile, and dangerous. You contribute in every phase of play.',['Versatility','Athleticism','Goal threat','Work rate','Two-way play'],'Kaká','#f97316',2),
+    'Power Forward':  arch('Striker','ST','The Physical Target Man','Power forwards are dominant, physical, and make life miserable for opponents. You hold the ball up, win headers, and bring others into play.',['Physicality','Aerial ability','Hold-up play','Strength','Presence'],'Didier Drogba','#ef4444',2),
+    'Center':         arch('Center Back','CB','The Dominant Organizer','Centers rule their area, protect the paint, and command teammates — just like an elite center back. Aerial, physical, and authoritative.',['Aerial dominance','Strength','Reading the game','Leadership','Communication'],'Virgil van Dijk','#22c55e',4),
+  },
+  football: {
+    'Quarterback':        arch('Attacking Midfielder','CAM','The #10 General','QBs read defenses, make split-second decisions, and elevate everyone around them. You\'re the fulcrum of the attack — reading the game and unlocking defenses.',['Vision','Leadership','Decision-making','Execution under pressure','Clutch'],'Luka Modrić','#f97316',5),
+    'Wide Receiver':      arch('Winger','RW/LW','The Explosive Speedster','WRs live on the edge, run precise routes, and turn on the afterburners. Your pace and timing off the ball make you a constant danger on the flank.',['Pace','Timing','Concentration','Runs in behind','Big-play ability'],'Leroy Sané','#ef4444',4),
+    'Running Back':       arch('Striker','ST','The Powerful Finisher','Running backs burst through gaps, break tackles, and find the end zone. Your explosive first step, physicality, and finishing instinct make you a nightmare to contain.',['Burst','Elusiveness','Physicality','Finishing','Contact balance'],'Romelu Lukaku','#ef4444',2),
+    'Tight End':          arch('Striker','ST','The Aerial Target Man','Tight ends are big, physical, and a reliable outlet. You\'re the towering striker who wins headers, shields the ball, and is a constant aerial threat in the box.',['Size','Aerial threat','First touch','Link play','Red-zone presence'],'Olivier Giroud','#ef4444',1),
+    'Linebacker':         arch('Defensive Midfielder','CDM','The Destroyer','Linebackers read plays, make tackles, and patrol their zone. You\'re the shield in front of the back four — breaking up attacks and winning the ball.',['Tackling','Reading the game','Physical','Leadership','Ball-winning'],'N\'Golo Kanté','#3b82f6',4),
+    'Cornerback':         arch('Full Back','RB/LB','The Lockdown Full Back','Corners use speed and instinct to shut down elite receivers. Your 1v1 defending and athleticism make wingers regret facing you.',['Speed','1v1 defending','Athleticism','Positioning','Competitive'],'Trent Alexander-Arnold','#22c55e',3),
+    'Safety':             arch('Goalkeeper','GK','The Sweeper Keeper','Safeties patrol deep zones, read the offense, and are the last line of defense. You read the game brilliantly and command your area with authority.',['Reading the game','Positioning','Communication','Reflexes','Sweeping'],'Manuel Neuer','#8b5cf6',4),
+    'Offensive Lineman':  arch('Center Back','CB','The Brick Wall','Linemen are physical, disciplined, and do the unglamorous work that wins games. You\'re a wall — dominant in the air, hard to beat on the ground.',['Physical dominance','Strength','Positional discipline','Aerial','Team-first'],'John Terry','#22c55e',0),
+    'Defensive Lineman':  arch('Center Back','CB','The Brick Wall','Linemen are physical, disciplined, and do the unglamorous work that wins games. You\'re a wall — dominant in the air, hard to beat on the ground.',['Physical dominance','Strength','Positional discipline','Aerial','Team-first'],'John Terry','#22c55e',0),
+  },
+  baseball: {
+    'Pitcher':   arch('Goalkeeper','GK','The Clutch Shot Stopper','Pitchers have ice in their veins, elite arm strength, and thrive in 1v1 pressure moments. You\'re calm when it matters most — a match-winner.',['Mental toughness','Clutch','1v1 elite','Distribution','Composure'],'Gianluigi Buffon','#8b5cf6',3),
+    'Catcher':   arch('Center Back','CB','The Field General','Catchers see the whole game, call the plays, and organize from the back. Your leadership and game-reading make you the heartbeat of the defense.',['Game-reading','Organizing','Leadership','Communication','Defensive IQ'],'Sergio Ramos','#22c55e',3),
+    'Shortstop': arch('Central Midfielder','CM','The Dynamic Engine','Shortstops have elite range, athleticism, and handle every situation cleanly. You cover every blade of grass and make the game look easy.',['Range','Athleticism','Quick thinking','Versatility','Consistency'],'Sergio Busquets','#3b82f6',2),
+    'Second Base': arch('Defensive Midfielder','CDM','The Interceptor','Second basemen are quick, positionally smart, and always in the right spot. Your anticipation and positioning cut out attacks before they develop.',['Anticipation','Positioning','Quick decisions','Grit','Work rate'],'Casemiro','#3b82f6',2),
+    'First Base': arch('Striker','ST','The Clinical Poacher','First basemen have great positioning and are the best power hitter. Your box positioning and clinical finishing are your weapons.',['Box positioning','First touch','Physical presence','Finishing','Link play'],'Robert Lewandowski','#ef4444',3),
+    'Third Base': arch('Center Back','CB','The Hot-Corner Defender','Third basemen have elite reflexes and physicality. As a center back you\'re decisive, reactive, and win every battle.',['Reflexes','Physicality','Decisive','Reading the game','Strength'],'Gerard Piqué','#22c55e',1),
+    'Outfielder': arch('Winger','RW/LW','The Wide Tracker','Outfielders cover huge ground, read the ball in the air, and are the most athletic players. Your ability to track runs, press, and transition is elite.',['Speed','Tracking','Athletic','Transition play','Wide threat'],'Sadio Mané','#ef4444',2),
+  },
+  hockey: {
+    'Goalie':    arch('Goalkeeper','GK','The Reflex Machine','Hockey goalies face bullets from every angle and react in milliseconds. Your lightning reflexes and fearlessness make you a wall between the posts.',['Reflexes','Fearlessness','Positioning','Shot-stopping','Mental toughness'],'Marc-André ter Stegen','#8b5cf6',3),
+    'Defenseman':arch('Full Back','RB/LB','The Composed Defender','Hockey defensemen are dependable, physical, and can chip in offensively. Solid at the back and effective when you join attacks.',['Composure','Physicality','Defensive nous','Overlapping','Two-way play'],'Andy Robertson','#22c55e',2),
+    'Center':    arch('Central Midfielder','CM','The Box-to-Box Engine','Hockey centers are two-way players who work hard at both ends. As a box-to-box midfielder you\'re tireless, versatile, and make an impact all over the pitch.',['Two-way play','Work rate','Stamina','Versatility','Consistency'],'Frank Lampard','#3b82f6',2),
+    'Left Wing': arch('Winger','RW/LW','The Direct Wide Attacker','Hockey wingers attack aggressively and are the primary scoring threats. You run at defenders, cross, and look to score at every opportunity.',['Directness','Speed','Crossing','Shooting','1v1 ability'],'Mohamed Salah','#ef4444',3),
+    'Right Wing':arch('Winger','RW/LW','The Direct Wide Attacker','Hockey wingers attack aggressively and are the primary scoring threats. You run at defenders, cross, and look to score at every opportunity.',['Directness','Speed','Crossing','Shooting','1v1 ability'],'Mohamed Salah','#ef4444',3),
+  },
+  tennis: {
+    'Serve & Volley':      arch('Striker','ST','The High-Press Forward','Serve-and-volleyers attack quickly, win points at the net, and never give opponents time. You suffocate defenders, win the ball high up the pitch, and finish ruthlessly.',['High press','Aggression','Quick thinking','Finishing','Intensity'],'Roberto Firmino','#ef4444',2),
+    'Aggressive Baseliner':arch('Winger','RW/LW','The Direct Wide Threat','Aggressive baseliners hit with pace and purpose, always dictating. As a winger you run at defenders with conviction and shoot powerfully.',['Pace','Directness','Power','1v1 threat','Shot'],'Kylian Mbappé','#ef4444',6),
+    'Defensive Baseliner': arch('Defensive Midfielder','CDM','The Tireless Retriever','Defensive baseliners frustrate opponents, retrieve everything, and outlast them. You track every run, win every duel, and are the tireless shield your team relies on.',['Tenacity','Endurance','Ball-winning','Positioning','Mental strength'],'N\'Golo Kanté','#3b82f6',4),
+    'All-Court Player':    arch('Central Midfielder','CM','The Box-to-Box All-Rounder','All-court players have no weakness — attack, defend, and adapt. As a box-to-box midfielder you\'re the complete midfield package: engine, creator, and goal threat.',['Adaptability','All-round quality','Power','Creativity','Consistency'],'Paul Pogba','#3b82f6',3),
+  },
+  lacrosse: {
+    'Attack':    arch('Striker','ST','The Clinical Finisher','Lacrosse attackers live to score and are always looking to get their shot off. Your goalscoring instinct and movement in the final third are world-class.',['Clinical','Movement','Finishing','Agility','Goal-hungry'],'Robert Lewandowski','#ef4444',3),
+    'Midfielder':arch('Central Midfielder','CM','The Box-to-Box Dynamo','Lacrosse midfielders cover the whole field and are incredibly fit. As a box-to-box midfielder you\'re powerful, energetic, and dangerous at both ends.',['Stamina','Power','Two-way play','Athleticism','Drive'],'Yaya Touré','#3b82f6',3),
+    'Defense':   arch('Center Back','CB','The Shutdown Defender','Lacrosse defenders are physical, aggressive, and shut down the best attackers. You relish the battle and make strikers\' lives miserable.',['Aggressive','Physical','1v1 defending','Commanding','Relentless'],'Carles Puyol','#22c55e',1),
+    'Goalie':    arch('Goalkeeper','GK','The Reflex Machine','Lacrosse goalies face point-blank shots constantly. Your lightning reflexes and bravery translate perfectly — you make the saves that look impossible.',['Reflexes','Bravery','Quick reactions','Communication','Shot-stopping'],'Alisson Becker','#8b5cf6',2),
+  },
+  rugby: {
+    'Prop':      arch('Center Back','CB','The Physical Anchor','Props are brutally physical and never take a backward step. You\'re a commanding center back who wins every aerial duel and intimidates strikers.',['Physicality','Strength','Aerial dominance','Intimidating','Dominant'],'Nemanja Vidić','#22c55e',2),
+    'Hooker':    arch('Center Back','CB','The Physical Anchor','Hookers are brutally physical and never take a backward step. Commanding in the air, hard on the ground — strikers go quiet facing you.',['Physicality','Strength','Aerial dominance','Intimidating','Dominant'],'Nemanja Vidić','#22c55e',2),
+    'Lock':      arch('Center Back','CB','The Aerial Powerhouse','Locks are the tallest and most powerful players. Your aerial dominance and sheer presence make set pieces a nightmare for the opposition.',['Aerial dominance','Height','Power','Positioning','Set-piece threat'],'Per Mertesacker','#22c55e',2),
+    'Flanker':   arch('Central Midfielder','CM','The Box-to-Box Powerhouse','Flankers are tireless, physical, and impactful at both ends. You\'re a dominant box-to-box midfielder who never stops running.',['Work rate','Power','Two-way play','Ball-carrying','Relentless'],'Yaya Touré','#3b82f6',4),
+    'Number 8':  arch('Central Midfielder','CM','The Powerhouse Engine','Number 8s are the team\'s physical engine — dominant at both ends. You\'re powerful, energetic, and impossible to knock off the ball.',['Work rate','Power','Two-way play','Ball-carrying','Relentless'],'Yaya Touré','#3b82f6',4),
+    'Scrum-half':arch('Defensive Midfielder','CDM','The Quick Distributor','Scrum-halves are quick-thinking and distribute from the base of every play. You win the ball and immediately set the tempo with sharp passing.',['Quick thinking','Distribution','Competitive','Positioning','Work rate'],'Sergio Busquets','#3b82f6',3),
+    'Fly-half':  arch('Attacking Midfielder','CAM','The Creative Conductor','Fly-halves control the game, pick the right play, and unlock any defense with a moment of brilliance. You make the creative decisions under pressure.',['Vision','Creativity','Composure','Decision-making','Passing range'],'David Silva','#f97316',4),
+    'Wing':      arch('Winger','RW/LW','The Explosive Edge Threat','Rugby wings are the fastest athletes on the pitch and finish with power and precision. You terrorize full backs with speed and always end up in dangerous positions.',['Explosive pace','Finishing','Strength','1v1 threat','Direct'],'Gareth Bale','#ef4444',4),
+    'Centre':    arch('Central Midfielder','CM','The Two-Way Midfielder','Rugby centres are powerful, versatile, and contribute in attack and defense. You break lines, score goals, and track back — a complete player.',['Power','Versatility','Goal threat','Tackling','Line-breaking'],'Frank Lampard','#3b82f6',3),
+    'Fullback':  arch('Goalkeeper','GK','The Sweeping Last Man','Rugby fullbacks read the game brilliantly, clean up behind the line, and ignite attacks. You\'re a sweeper-keeper who dominates your area and starts counter-attacks.',['Reading the game','Sweeping','Counter-attack starter','Positioning','Clutch'],'Manuel Neuer','#8b5cf6',3),
+  },
+  swimming: {
+    'Sprinter (50–100m)':        arch('Winger','RW/LW','The Pure Speedster','Short-distance swimmers have elite fast-twitch muscle. As a winger your raw acceleration leaves defenders for dead — one of the fastest players on the pitch.',['Explosive pace','Acceleration','Directness','Transition threat','Wide play'],'Kylian Mbappé','#ef4444',5),
+    'Middle Distance (200–400m)':arch('Striker','ST','The Well-Rounded Forward','Middle-distance swimmers combine speed with endurance. You have the pace to run in behind, the stamina to press for 90 minutes, and are a constant threat.',['Speed','Endurance','Work rate','Movement','Pressing'],'Harry Kane','#ef4444',2),
+    'Distance (800m+)':          arch('Central Midfielder','CM','The Lungs of the Team','Distance swimmers have extraordinary cardiovascular capacity. You never stop running — covering 13+ km per game while maintaining quality throughout.',['Endurance','Work rate','Consistency','Stamina','Covering ground'],'James Milner','#3b82f6',1),
+    'Individual Medley':         arch('Central Midfielder','CM','The Versatile Engine','IM swimmers are the most complete athletes in the pool. You adapt to any system and perform at an elite level in any situation.',['Versatility','Complete','Adaptable','Fitness','Intelligence'],'Kevin De Bruyne','#3b82f6',4),
+  },
+  track: {
+    'Sprinter':           arch('Winger','RW/LW','The Pace Merchant','Track sprinters are the fastest humans alive. As a winger you terrorize defenses with pure pace — running in behind, beating defenders, and stretching the game.',['Pure pace','Directness','Acceleration','Transition threat','Wide play'],'Leroy Sané','#ef4444',4),
+    'Distance Runner':    arch('Central Midfielder','CM','The Relentless Runner','Distance runners have the best VO2 max of any athlete. You run tirelessly for 90+ minutes — pressing and recovering endlessly, the engine of the team.',['Endurance','Work rate','Stamina','Pressing','Consistency'],'Toni Kroos','#3b82f6',2),
+    'Jumper':             arch('Striker','ST','The Athletic Aerial Finisher','Jumpers have explosive power, exceptional timing, and dominate in the air. Your heading ability and athleticism make you a constant aerial threat.',['Aerial ability','Explosive power','Timing','Athletic','Goal threat'],'Cristiano Ronaldo','#ef4444',5),
+    'Thrower / Shot Put': arch('Center Back','CB','The Powerhouse Defender','Throwers have raw physical power and explosive strength. You\'re an immovable force — dominating aerial duels, bulldozing attackers, and commanding your box.',['Raw power','Strength','Aerial dominance','Physical dominance','Imposing'],'Virgil van Dijk','#22c55e',3),
+  },
+  volleyball: {
+    'Setter':          arch('Central Midfielder','CM','The Master Distributor','Setters touch the ball more than anyone, make split-second decisions, and set teammates up to score. Your vision and touch make everyone around you better.',['Vision','Touch','Decision-making','Leadership','Creativity'],'Xavi Hernández','#3b82f6',5),
+    'Outside Hitter':  arch('Winger','RW/LW','The Primary Wide Weapon','Outside hitters are the go-to scoring option. As a winger you\'re the primary attacking outlet — taking on defenders, cutting inside, and creating or finishing chances.',['Scoring instinct','Athleticism','Directness','1v1 threat','Versatility'],'Arjen Robben','#ef4444',3),
+    'Middle Blocker':  arch('Center Back','CB','The Aerial Specialist','Middle blockers are the tallest players and dominate at the net. Your aerial ability and timing make you an imposing force at both ends of the pitch.',['Aerial dominance','Timing','Height','Blocking / Defending','Presence'],'Raphaël Varane','#22c55e',2),
+    'Libero':          arch('Defensive Midfielder','CDM','The Recovery Specialist','Liberos are the defensive specialist who saves everything and makes the unreachable look routine. You cover for everyone, win the ball, and keep the team organized.',['Recovery','Positioning','Tenacity','Reading the game','Ball-winning'],'Claude Makélélé','#3b82f6',2),
+    'Opposite Hitter': arch('Striker','ST','The Big Hitter','Opposite hitters are the most powerful hitters on the team. As a striker you\'re a goalscoring force of nature who rises to big occasions.',['Power','Scoring ability','Big-game mentality','Athleticism','Finishing'],'Zlatan Ibrahimović','#ef4444',4),
+  },
+};
+
+function golfArchetype(handicap, type) {
+  const tier = handicap <= 5 ? 0 : handicap <= 15 ? 1 : 2;
+  const deltas = [6, 2, -3];
+  const delta = deltas[tier];
+  const map = {
+    power: [
+      arch('Striker','ST','The Aggressive Forward','Low handicap + raw power = a relentless, goal-hungry striker. You go for broke every time — big, physical, and clinical. The box is your kingdom.',['Aggressive','Physical','Clinical','Goal-hungry','Big-game mentality'],'Cristiano Ronaldo','#ef4444',delta),
+      arch('Striker','ST','The Physical Focal Point','Power but developing precision — you\'re a target man who holds the ball, wins headers, and makes defenders miserable.',['Aerial threat','Hold-up play','Physical','Link play','Work rate'],'Zlatan Ibrahimović','#ef4444',delta),
+      arch('Center Back','CB','The Physical Anchor','Power is your gift. Your physicality is a weapon — you dominate aerially and intimidate anyone who runs at you.',['Dominant','Physical','Aerial power','Commanding','Resilient'],'Virgil van Dijk','#22c55e',delta),
+    ],
+    precision: [
+      arch('Central Midfielder','CM','The Metronomic Playmaker','Elite precision + low handicap = the player who never wastes a pass. You see angles nobody else does and execute flawlessly. The game slows down for you.',['Vision','Passing range','Decision-making','Composure','Intelligence'],'Xavi Hernández','#3b82f6',delta),
+      arch('Central Midfielder','CM','The Technical Engine','Precision to pick the right pass and control tempo. You\'re the team\'s brain in midfield — always finding the solution.',['Technique','Ball retention','Positioning','Work rate','Smart'],'Thiago Alcântara','#3b82f6',delta),
+      arch('Full Back','RB/LB','The Reliable Contributor','Great positional awareness and decision-making. As a full back you never take unnecessary risks and always find the right option.',['Disciplined','Positional IQ','Decision-making','Solid','Team-first'],'Philipp Lahm','#22c55e',delta),
+    ],
+    shortgame: [
+      arch('Attacking Midfielder','CAM','The Technical Magician','Elite short game at a low handicap = close-control genius. Creative in tight spaces, unpredictable, and makes defenders look silly. The ultimate #10.',['Close control','Creativity','Vision','Composure','Unpredictable'],'Lionel Messi','#f97316',delta),
+      arch('Defensive Midfielder','CDM','The Gritty Grinder','You make up for a lack of raw range with relentless work rate and smart play in tight spaces. Always in the right place — the engine room.',['Work rate','Grit','Ball-winning','Smart use of space','Adaptable'],'N\'Golo Kanté','#3b82f6',delta),
+      arch('Defensive Midfielder','CDM','The Scrappy Workhorse','High handicap but a sharp short game — you hustle and scrap. Effort and positioning make you invaluable without elite physical tools.',['Hustle','Positioning','Ball-winning','Tenacious','Consistent'],'Marcos Llorente','#3b82f6',delta),
+    ],
+    allaround: [
+      arch('Central Midfielder','CM','The Complete Player','Low handicap all-around golfer = the most complete midfielder on the pitch. No weakness. You defend, create, and score. Every manager\'s dream.',['Complete','Versatile','Consistent','Clutch','Leadership'],'Luka Modrić','#3b82f6',delta),
+      arch('Full Back','RB/LB','The Modern Wing-Back','Well-rounded mid-handicapper = a full back who can do it all. Defend, overlap, cross, track back. Not flashy, but absolutely essential.',['Two-way play','Stamina','Reliable','Positioning','Contributing'],'Dani Carvajal','#22c55e',delta),
+      arch('Center Back','CB','The Steady Defender','All-around but still developing. As a center back you\'re the foundation — reliable, consistent, and a calming presence at the back.',['Reliable','Positional','Team player','Reads the game','Composed'],'Mats Hummels','#22c55e',delta),
+    ],
+  };
+  return map[type][tier];
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let selectedSport = null;
+let selectedHandicap = 12;
+let selectedGolferType = 'allaround';
+let lastArchetype = null;
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function goBack(id) { showStep(id); }
+
+// ── Step 1 ─────────────────────────────────────────────────────────────────────
+
+function buildSportGrid() {
+  const grid = document.getElementById('sport-grid');
+  SPORTS.forEach(sport => {
+    const card = document.createElement('button');
+    card.className = 'sport-card';
+    card.innerHTML = `<span class="emoji">${sport.emoji}</span><span class="label">${sport.label}</span>`;
+    card.addEventListener('click', () => selectSport(sport));
+    grid.appendChild(card);
+  });
+}
+
+function selectSport(sport) {
+  selectedSport = sport;
+  document.getElementById('detail-label').textContent =
+    sport.id === 'golf' ? 'Step 2 of 3 — Golf Details' : 'Step 2 of 3 — Your Position';
+  document.getElementById('detail-content').innerHTML = '';
+  document.getElementById('detail-content').appendChild(
+    sport.id === 'golf' ? buildGolfUI() : buildPositionUI(sport)
+  );
+  showStep('step-detail');
+}
+
+// ── Step 2 ─────────────────────────────────────────────────────────────────────
+
+function buildPositionUI(sport) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<h3 style="font-size:1rem;font-weight:700;margin-bottom:14px">${sport.emoji}  What's your position?</h3>`;
+  const list = document.createElement('div');
+  list.className = 'position-list';
+  sport.positions.forEach(pos => {
+    const btn = document.createElement('button');
+    btn.className = 'pos-btn';
+    btn.textContent = pos;
+    btn.addEventListener('click', () => {
+      const a = ENGINE[sport.id]?.[pos];
+      if (a) showResult(a);
+    });
+    list.appendChild(btn);
+  });
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function buildGolfUI() {
+  const wrap = document.createElement('div');
+
+  wrap.innerHTML = `
+    <div class="golf-section">
+      <h3>⛳  What's your handicap?</h3>
+      <div class="handicap-display" id="h-display">12<span>/ 36</span></div>
+      <input type="range" id="h-slider" min="0" max="36" value="12">
+      <div class="range-labels"><span>Scratch (0)</span><span>36+</span></div>
+    </div>
+    <div class="golf-section">
+      <h3>🏌️  What type of golfer are you?</h3>
+      <div class="golfer-type-grid" id="type-grid"></div>
+    </div>
+  `;
+
+  const typeGrid = wrap.querySelector('#type-grid');
+  GOLFER_TYPES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'type-btn' + (t.id === selectedGolferType ? ' selected' : '');
+    btn.dataset.id = t.id;
+    btn.innerHTML = `<div class="type-name">${t.label}</div><div class="type-blurb">${t.blurb}</div>`;
+    btn.addEventListener('click', () => {
+      selectedGolferType = t.id;
+      typeGrid.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    typeGrid.appendChild(btn);
+  });
+
+  const submit = document.createElement('button');
+  submit.className = 'submit-btn';
+  submit.textContent = 'Generate My Card  →';
+  submit.addEventListener('click', () => {
+    showResult(golfArchetype(selectedHandicap, selectedGolferType));
+  });
+  wrap.appendChild(submit);
+
+  setTimeout(() => {
+    const slider  = document.getElementById('h-slider');
+    const display = document.getElementById('h-display');
+    slider?.addEventListener('input', () => {
+      selectedHandicap = parseInt(slider.value);
+      display.innerHTML = `${selectedHandicap}<span>/ 36</span>`;
+    });
+  }, 0);
+
+  return wrap;
+}
+
+// ── Step 3: FC26 card ─────────────────────────────────────────────────────────
+
+function showResult(a) {
+  lastArchetype = a;
+  const el = document.getElementById('result-content');
+  el.innerHTML = '';
+
+  const stats    = getCardStats(a.code, a.delta);
+  const ovr      = stats.ovr;
+  const tier     = cardTier(ovr);
+  const posEmoji = POS_EMOJI[a.code] || '⚽';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'result-wrap';
+
+  // ── FC Card ──
+  const card = document.createElement('div');
+  card.className = `fc-card ${tier}`;
+  card.innerHTML = `
+    <div class="fc-top">
+      <div class="fc-ovr-block">
+        <div class="fc-ovr">${ovr}</div>
+        <div class="fc-pos">${a.code}</div>
+      </div>
+      <div class="fc-edition-block">
+        <div class="fc-edition-icon">⚽</div>
+        <div class="fc-edition-label">Position<br>Finder</div>
+      </div>
+    </div>
+    <div class="fc-player-area">
+      <div class="fc-player-silhouette">${posEmoji}</div>
+    </div>
+    <div class="fc-divider"></div>
+    <div class="fc-name">${a.name.replace(/^The /, '')}</div>
+    <div class="fc-stats">
+      ${stats.names.map((n,i) => `
+        <div class="fc-stat">
+          <span class="fc-stat-val">${stats.vals[i]}</span>
+          <span class="fc-stat-name">${n}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  wrap.appendChild(card);
+
+  // ── Info below card ──
+  const info = document.createElement('div');
+  info.className = 'result-info';
+
+  // Position + archetype heading
+  const heading = document.createElement('div');
+  heading.style.cssText = 'text-align:center;margin-bottom:16px';
+  heading.innerHTML = `
+    <div style="font-size:1.4rem;font-weight:800">${a.position}</div>
+    <div style="font-size:1rem;font-weight:600;color:${a.color};margin-top:3px">${a.name}</div>
+  `;
+  info.appendChild(heading);
+
+  // Description
+  const descCard = document.createElement('div');
+  descCard.className = 'result-info-card';
+  descCard.innerHTML = `<p class="info-desc">${a.desc}</p>`;
+  info.appendChild(descCard);
+
+  // Traits
+  const traitsCard = document.createElement('div');
+  traitsCard.className = 'result-info-card';
+  traitsCard.innerHTML = `<div class="info-label">Key Traits</div>
+    <ul class="traits-list">
+      ${a.traits.map(t =>
+        `<li><span class="trait-dot" style="background:${a.color}"></span>${t}</li>`
+      ).join('')}
+    </ul>`;
+  info.appendChild(traitsCard);
+
+  // Player comparison
+  const compCard = document.createElement('div');
+  compCard.className = 'comparison-card';
+  compCard.style.cssText = `background:${hexAlpha(a.color,.1)};border:1.5px solid ${hexAlpha(a.color,.35)};color:${a.color}`;
+  compCard.textContent = a.player;
+  info.appendChild(compCard);
+
+  // Try again
+  const tryBtn = document.createElement('button');
+  tryBtn.className = 'try-again-btn';
+  tryBtn.textContent = '↩  Try Another Sport';
+  tryBtn.addEventListener('click', () => showStep('step-sport'));
+  info.appendChild(tryBtn);
+
+  wrap.appendChild(info);
+  el.appendChild(wrap);
+  showStep('step-result');
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+
+function hexAlpha(hex, a) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildSportGrid();
+</script>
+</body>
+</html>
